@@ -9,14 +9,16 @@ class QrScannerOverlayShape extends ShapeBorder {
   final double borderRadius;
   final double borderLength;
   final double cutOutSize;
+  final double indicatorPosition;
 
   QrScannerOverlayShape({
-    this.borderColor = Colors.red,
+    this.borderColor = Colors.green,
     this.borderWidth = 3.0,
     this.overlayColor = const Color.fromRGBO(0, 0, 0, 80),
     this.borderRadius = 0,
     this.borderLength = 40,
     this.cutOutSize = 250,
+    this.indicatorPosition = 0
   }) : assert(
             cutOutSize != null
                 ? cutOutSize != null
@@ -86,12 +88,28 @@ class QrScannerOverlayShape extends ShapeBorder {
       ..style = PaintingStyle.fill
       ..blendMode = BlendMode.dstOut;
 
+    final Gradient gradient = LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [Colors.transparent, Colors.green, Colors.green, Colors.transparent],
+        stops: [0.0, 0.4, 0.6, 1.0]
+    );
+    final indicatorPaint = Paint()
+      ..style = PaintingStyle.fill
+//      ..blendMode = BlendMode.clear
+      ..shader = gradient.createShader(rect);
+
     final cutOutRect = Rect.fromLTWH(
       width / 2 - _cutOutSize / 2 + borderOffset,
       height / 2 - _cutOutSize / 2 + borderOffset,
       _cutOutSize - borderOffset * 2,
       _cutOutSize - borderOffset * 2,
     );
+    final indicatorRect = Rect.fromLTWH(
+        width / 2 - _cutOutSize / 2 + borderOffset + 5,
+        height / 2 - _cutOutSize / 2 + borderOffset + indicatorPosition * (_cutOutSize - borderOffset * 2),
+        _cutOutSize - borderOffset * 2 - 10,
+        2);
 
     canvas.saveLayer(
       rect,
@@ -154,6 +172,7 @@ class QrScannerOverlayShape extends ShapeBorder {
         ),
         boxPaint,
       )
+      ..drawRect(indicatorRect, indicatorPaint)
       ..restore();
   }
 
